@@ -4,6 +4,7 @@ import { isObjectEmpty } from "@/common/utils";
 import type { User } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 import { genSaltSync, hashSync } from "bcrypt";
+import TagService from "./tag.service";
 
 export default class UserService {
   private prisma: PrismaClient;
@@ -39,6 +40,7 @@ export default class UserService {
           salt,
         },
       });
+      await new TagService().createDefaultTags(user.userId);
       return user.email;
     } catch (error) {
       throw new Error(BASE_CONST.ERROR.INTERNAL_SERVER);

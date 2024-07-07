@@ -57,8 +57,9 @@ model Expense {
 
 model Tag {
   tagId       Int          @id @default(autoincrement()) @map("tag_id")
-  user        User?        @relation(fields: [userId], references: [userId])
-  userId      Int?         @map("user_id")
+  user        User        @relation(fields: [userId], references: [userId])
+  userId      Int         @map("user_id")
+  type        TagType
   name        String
   isDefault   Boolean      @default(false) @map("is_default")
   incomeTags  IncomeTag[]
@@ -90,4 +91,9 @@ model ExpenseTag {
 enum TransactionType {
   projected
   actual
+}
+
+enum TagType {
+  income
+  expense
 }
