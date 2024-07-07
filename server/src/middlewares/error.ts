@@ -1,3 +1,4 @@
+import BASE_CONST from "@/common/constants";
 import { NextFunction, Request, Response } from "express";
 import { HttpError } from "http-errors";
 
@@ -7,11 +8,17 @@ export default (
   res: Response,
   next: NextFunction
 ): void => {
-  res.status(error.status || 500);
+  let status = error.status;
+  let message = error.message;
+  if (!error.status) {
+    status = 500;
+    message = BASE_CONST.ERROR.INTERNAL_SERVER;
+  }
+  res.status(status);
   res.send({
-    status: error.status || 500,
+    status,
     result: {
-      message: error.message,
+      message,
     },
   });
 };

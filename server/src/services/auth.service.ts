@@ -25,7 +25,7 @@ export default class AuthService {
     const privateKey = process.env.PRIVATE_KEY as string;
     const token = sign(
       {
-        data: {
+        payload: {
           user: user.email,
         },
       },

@@ -2,6 +2,7 @@ import BASE_CONST from "@/common/constants";
 import { LoginUserPayload } from "@/common/interfaces";
 import Logger from "@/common/Logger";
 import AuthService from "@/services/auth.service";
+import type { User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 
@@ -40,4 +41,24 @@ export const handleUserLogin = async (
         break;
     }
   }
+};
+
+// @desc      Get authenticated user
+// @route     GET /api/v1/auth
+// @access    Private
+export const handleGetAuthUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const user: User = JSON.parse(req.headers.authorization ?? "");
+  res.status(200).json({
+    status: 200,
+    result: {
+      userId: user.userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    },
+  });
 };

@@ -1,5 +1,5 @@
 import { handleRegisterUser } from "@/controllers/user.controller";
-import validator from "@/middlewares/validator";
+import validator from "@/middlewares/validate";
 import { registerValidations } from "@/validators/user.validator";
 import express, { Router } from "express";
 import { checkSchema } from "express-validator";
