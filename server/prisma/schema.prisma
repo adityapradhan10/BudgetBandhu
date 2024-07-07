@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId       Int       @id @default(autoincrement()) @map("user_id")
+  firstName    String    @map("first_name")
+  lastName     String    @map("last_name")
+  email        String    @unique
+  salt         String
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @map("updated_at")
+  incomes      Income[]
+  expenses     Expense[]
+  tags         Tag[]
+
+  @@map("user")
+}
+
+model Income {
+  incomeId    Int             @id @default(autoincrement()) @map("income_id")
+  user        User            @relation(fields: [userId], references: [userId])
+  userId      Int             @map("user_id")
+  amount      Float
+  incomeDate  DateTime        @map("income_date")
+  type        TransactionType
+  description String?
+  tags        IncomeTag[]
+
+  @@map("income")
+}
+
+model Expense {
+  expenseId   Int             @id @default(autoincrement()) @map("expense_id")
+  user        User            @relation(fields: [userId], references: [userId])
+  userId      Int             @map("user_id")
+  amount      Float
+  expenseDate DateTime        @map("expense_date")
+  type        TransactionType
+  description String?
+  tags        ExpenseTag[]
+
+  @@map("expense")
+}
+
+model Tag {
+  tagId       Int          @id @default(autoincrement()) @map("tag_id")
+  user        User?        @relation(fields: [userId], references: [userId])
+  userId      Int?         @map("user_id")
+  name        String
+  isDefault   Boolean      @default(false) @map("is_default")
+  incomeTags  IncomeTag[]
+  expenseTags ExpenseTag[]
+
+  @@map("tag")
+}
+
+model IncomeTag {
+  incomeId Int    @map("income_id")
+  tagId    Int    @map("tag_id")
+  income   Income @relation(fields: [incomeId], references: [incomeId], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [tagId], onDelete: Cascade)
+
+  @@id([incomeId, tagId])
+  @@map("income_tag")
+}
+
+model ExpenseTag {
+  expenseId Int     @map("expense_id")
+  tagId     Int     @map("tag_id")
+  expense   Expense @relation(fields: [expenseId], references: [expenseId], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [tagId], onDelete: Cascade)
+
+  @@id([expenseId, tagId])
+  @@map("expense_tag")
+}
+
+enum TransactionType {
+  projected
+  actual
+}
