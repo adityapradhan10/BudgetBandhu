@@ -21,12 +21,16 @@ export const handleUserLogin = async (
 
   try {
     const result = await new AuthService().userLogin(data);
-    res.status(200).json({
-      status: 200,
-      result: {
-        token: result,
-      },
-    });
+    res
+      .cookie("token", result, {
+        httpOnly: true,
+        maxAge: 7200000,
+      })
+      .status(200)
+      .json({
+        status: 200,
+        result: {},
+      });
   } catch (error: any) {
     switch (error.message) {
       case BASE_CONST.ERROR.USER_NOT_FOUND:

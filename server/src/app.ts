@@ -2,13 +2,22 @@ import errorHandler from "@/middlewares/error";
 import auth from "@/routes/auth.route";
 import tag from "@/routes/tag.route";
 import user from "@/routes/user.route";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 
 export default (): Application => {
   const app: Application = express();
 
+  app.use(
+    cors({
+      credentials: true,
+      origin: "*",
+    })
+  );
   app.use(express.json());
+  app.use(cookieParser());
   app.use("/api/v1/auth", auth);
   app.use("/api/v1/user", user);
   app.use("/api/v1/tag", tag);

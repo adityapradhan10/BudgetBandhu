@@ -1,4 +1,5 @@
-import { AccountSlice, ActionError, User } from "@/common/interface";
+import { getCurrentUser } from "@/api/user.service";
+import { AccountSlice, ActionError, User } from "@/common/types/interface";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: AccountSlice = {
@@ -7,12 +8,12 @@ const initialState: AccountSlice = {
   error: null,
 };
 
-export const getCurrentUser = createAsyncThunk<User, void, ActionError>(
-  "account/getCurrentUser",
+export const fetchCurrentUser = createAsyncThunk<User, void, ActionError>(
+  "account/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
-      await fetch("https://jsonplaceholder.typicode.com/posts/1");
-      return {} as User;
+      const user = await getCurrentUser();
+      return user as User;
     } catch (error) {
       return rejectWithValue({ message: (error as Error).message });
     }
@@ -24,18 +25,18 @@ export const accountSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(getCurrentUser.pending, (state) => {
+    builder.addCase(fetchCurrentUser.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(
-      getCurrentUser.fulfilled,
+      fetchCurrentUser.fulfilled,
       (state, action: PayloadAction<User>) => {
         state.loading = false;
         state.user = action.payload;
         state.error = "";
       }
     );
-    builder.addCase(getCurrentUser.rejected, (state, action) => {
+    builder.addCase(fetchCurrentUser.rejected, (state, action) => {
       state.loading = false;
       state.user = null;
       state.error = action.error.message || "Something went wrong";

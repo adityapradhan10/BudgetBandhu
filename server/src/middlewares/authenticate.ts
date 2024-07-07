@@ -8,16 +8,20 @@ export default async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const token = (req.headers.authorization ?? "").replace("Bearer ", "");
+  const token = (req.cookies.token ?? "").replace("Bearer ", "");
   const privateKey = process.env.PRIVATE_KEY as string;
-  const data = verify(token, privateKey) as JwtPayload;
-  const email = data.payload.user;
+  try {
+    const data = verify(token, privateKey) as JwtPayload;
+    const email = data.payload.user;
 
-  const user = await new UserService().getUserByEmail(email);
-  if (!user) {
+    const user = await new UserService().getUserByEmail(email);
+    if (!user) {
+      next(createHttpError.Unauthorized());
+    } else {
+      req.headers.authorization = JSON.stringify(user);
+      next();
+    }
+  } catch (error) {
     next(createHttpError.Unauthorized());
-  } else {
-    req.headers.authorization = JSON.stringify(user);
-    next();
   }
 };
