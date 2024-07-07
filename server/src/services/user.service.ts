@@ -14,12 +14,7 @@ export default class UserService {
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    try {
-      let user = await this.prisma.user.findFirst({ where: { email } });
-      return user;
-    } catch (error) {
-      throw new Error(BASE_CONST.ERROR.INTERNAL_SERVER);
-    }
+    return await this.prisma.user.findFirst({ where: { email } });
   }
 
   async createUser(data: RegisterUserPayload): Promise<string> {
@@ -28,22 +23,18 @@ export default class UserService {
       throw new Error(BASE_CONST.ERROR.USER_EXISTS);
     }
 
-    try {
-      const salt = genSaltSync(10);
-      const passwordHash = hashSync(data.password, salt);
-      const user = await this.prisma.user.create({
-        data: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          passwordHash: passwordHash,
-          salt,
-        },
-      });
-      await new TagService().createDefaultTags(user.userId);
-      return user.email;
-    } catch (error) {
-      throw new Error(BASE_CONST.ERROR.INTERNAL_SERVER);
-    }
+    const salt = genSaltSync(10);
+    const passwordHash = hashSync(data.password, salt);
+    const user = await this.prisma.user.create({
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        passwordHash: passwordHash,
+        salt,
+      },
+    });
+    await new TagService().createDefaultTags(user.userId);
+    return user.email;
   }
 }

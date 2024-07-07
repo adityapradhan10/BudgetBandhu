@@ -7,12 +7,7 @@ import UserService from "./user.service";
 
 export default class AuthService {
   async userLogin(data: LoginUserPayload): Promise<string> {
-    let user = null;
-    try {
-      user = await new UserService().getUserByEmail(data.email);
-    } catch (error) {
-      throw new Error(BASE_CONST.ERROR.INTERNAL_SERVER);
-    }
+    const user = await new UserService().getUserByEmail(data.email);
     if (!user || isObjectEmpty(user)) {
       throw new Error(BASE_CONST.ERROR.USER_NOT_FOUND);
     }
